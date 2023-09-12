@@ -1,20 +1,97 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { useState, useCallback } from 'react';
+import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { WebView as WebViewRN } from 'react-native-webview';
+
 
 export default function App() {
+    const [isLoading, setIsLoading] = useState(true);
+  const [isCloseReady, setIsCloseReady] = useState(true);
+
+
+  const handleDismissSetDismissible = useCallback(
+    (state) => {
+      if (state) {
+        setTimeout(() => {
+          setIsCloseReady(state);
+        }, 10000);
+        return;
+      }
+      setIsCloseReady(state);
+    },
+    [setIsCloseReady],
+  )
+
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+      <View style={styles.closeContainer}>
+        <TouchableOpacity
+          style={styles.close}
+          onPress={() => null}
+          disabled={!isCloseReady}
+          color={isCloseReady ? '#FF00CC' : '#0011CC'}
+        >
+          <Text>x</Text>
+        </TouchableOpacity>
+      </View>
+      <WebViewRN
+      style={styles.webview}
+      originWhitelist={['*']}
+      source={{ uri: 'https://uat-secure.transactionjunction.com/payments?ipgwSId=27f4b33f-0ab6-4f13-9ddd-ea11fbbac134' }}
+      onLoad={(syntheticEvent) => {
+        // const { nativeEvent } = syntheticEvent;
+        setIsLoading(false);
+        handleDismissSetDismissible(true);
+      }}
+      onLoadStart={(syntheticEvent) => {
+        // const { nativeEvent } = syntheticEvent;
+        setIsLoading(true);
+        handleDismissSetDismissible(false);
+      }}
+      onNavigationStateChange={({ url: currentWebURL, loading }) => {
+        console.log('====================================');
+        console.log('currentWebURL: ', currentWebURL);
+        console.log('loading: ', loading);
+        console.log('====================================');
+      
+        // if (!loading) {
+        //   if (currentWebURL.includes(successURL)) {
+        //     finalizeOrder('success', { url: currentWebURL });
+        //   } else if (currentWebURL.includes(failureURL)) {
+        //     finalizeOrder('failed', { url: currentWebURL });
+        //   } else if (currentWebURL.includes(cancelURL)) {
+        //     finalizeOrder('canceled', { url: currentWebURL });
+        //   }
+        // }
+      }}
+      />
+      {!isLoading && (
+        <View style={{flex: 1, justifyContent: 'center', alignContent: 'center', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10, backgroundColor: '#000000CC' }}>
+                <ActivityIndicator animating size={'large'} />
+        </View>
+      )}
     </View>
   );
 }
 
+
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    container: {
+      flex: 1,
+      flexDirection: 'column',
+    },
+    webview: {
+      // flex: 1,
+    },
+    closeContainer: {
+      width: '100%',
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      padding: 10,
+      backgroundColor: '#FFFFFF',
+    },
+    close: {
+      fontSize: 26,
+    },
 });
