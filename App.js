@@ -2,11 +2,11 @@ import { useState, useCallback } from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { WebView as WebViewRN } from 'react-native-webview';
 
+const uri = `replace with uri`
 
 export default function App() {
     const [isLoading, setIsLoading] = useState(true);
   const [isCloseReady, setIsCloseReady] = useState(true);
-
 
   const handleDismissSetDismissible = useCallback(
     (state) => {
@@ -36,32 +36,25 @@ export default function App() {
       <WebViewRN
       style={styles.webview}
       originWhitelist={['*']}
-      source={{ uri: 'https://uat-secure.transactionjunction.com/payments?ipgwSId=27f4b33f-0ab6-4f13-9ddd-ea11fbbac134' }}
-      onLoad={(syntheticEvent) => {
-        // const { nativeEvent } = syntheticEvent;
+      source={{ uri: uri }}
+      onLoad={() => {
         setIsLoading(false);
         handleDismissSetDismissible(true);
       }}
-      onLoadStart={(syntheticEvent) => {
-        // const { nativeEvent } = syntheticEvent;
+      onLoadStart={() => {
         setIsLoading(true);
         handleDismissSetDismissible(false);
       }}
       onNavigationStateChange={({ url: currentWebURL, loading }) => {
-        console.log('====================================');
-        console.log('currentWebURL: ', currentWebURL);
-        console.log('loading: ', loading);
-        console.log('====================================');
-      
-        // if (!loading) {
-        //   if (currentWebURL.includes(successURL)) {
-        //     finalizeOrder('success', { url: currentWebURL });
-        //   } else if (currentWebURL.includes(failureURL)) {
-        //     finalizeOrder('failed', { url: currentWebURL });
-        //   } else if (currentWebURL.includes(cancelURL)) {
-        //     finalizeOrder('canceled', { url: currentWebURL });
-        //   }
-        // }
+        if (!loading) {
+          if (currentWebURL.includes(successURL)) {
+            finalizeOrder('success', { url: currentWebURL });
+          } else if (currentWebURL.includes(failureURL)) {
+            finalizeOrder('failed', { url: currentWebURL });
+          } else if (currentWebURL.includes(cancelURL)) {
+            finalizeOrder('canceled', { url: currentWebURL });
+          }
+        }
       }}
       />
       {!isLoading && (
@@ -79,9 +72,6 @@ const styles = StyleSheet.create({
     container: {
       flex: 1,
       flexDirection: 'column',
-    },
-    webview: {
-      // flex: 1,
     },
     closeContainer: {
       width: '100%',
